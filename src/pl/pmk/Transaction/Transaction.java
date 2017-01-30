@@ -180,6 +180,16 @@ public class Transaction implements Serializable {
 	public void setPricePaid(int pricePaid) {
 		this.pricePaid = pricePaid;
 	}
+	public int getTransactionYear(){
+		@SuppressWarnings("deprecation")
+		int year = dateOfTransfer.getYear();
+		return year;
+	}
+	public int getTransactionMonth(){
+		@SuppressWarnings("deprecation")
+		int month = dateOfTransfer.getMonth();
+		return month;
+	}
 
 }
 

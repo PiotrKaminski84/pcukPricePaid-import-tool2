@@ -5,9 +5,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Map;
 
+import com.mysql.jdbc.PreparedStatement;
+
 import java.sql.Connection;
 import java.sql.Statement;
 
+import pl.pmk.Transaction.AvgNoTrans;
+import pl.pmk.Transaction.PcMonthYear;
 import pl.pmk.bussines.PostCode;
 import pl.pmk.bussines.PropertyDetails;
 import pl.pmk.bussines.SaleTransaction;
@@ -36,6 +40,7 @@ db.password = javahaslo
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 			connection = (Connection) DriverManager.getConnection(url, userName, password);
+			System.out.println("DB connected");
 		} catch (SQLException e) {
 			System.out.println("Connection Failure");
 		} catch (InstantiationException e) {
@@ -133,6 +138,38 @@ db.password = javahaslo
 
 	public static void setBatchSize(int batchSize) {
 		DbConnectorImpl.batchSize = batchSize;
+	}
+
+	@Override
+	public void uploadAvgByPcYearMonthToDb(Map<PcMonthYear, AvgNoTrans> pcMonthYearAverageData) {
+		//
+		ConnectDb();
+		try {
+			statement = connection.createStatement();
+			for (Map.Entry<PcMonthYear, AvgNoTrans> a : pcMonthYearAverageData.entrySet()){
+				String pc = a.getKey().getPostCode();
+				int year = a.getKey().getYear();
+				int month = a.getKey().getMonth();
+				double avgPrice = a.getValue().getAveragePrice();
+				int noOfTransactions = a.getValue().getNumberOfTransactions();
+				String query = "select * from avg_price where post_code = '" + pc + "' and year = "+ year + " and month = "+ month;
+				statement.executeQuery(query);
+				if (statement.getResultSet().next()){
+					System.out.println("entry exists");					
+				}else {
+					query = "insert into avg_price (post_code,year,month,avg_price,no_of_transactions) values"
+							+ " ('"+pc+"',"+year+","+month+","+avgPrice+","+noOfTransactions+")";					
+					statement.execute(query);
+					//connection.commit();
+				}
+			}
+
+		} catch (SQLException e) {
+			System.out.println("Couldn't create statement !");
+			e.printStackTrace();
+		}
+		Discconect();
+		
 	}
 	
 	

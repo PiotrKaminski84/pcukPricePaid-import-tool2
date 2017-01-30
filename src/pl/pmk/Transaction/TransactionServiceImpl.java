@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.OptionalDouble;
@@ -14,6 +15,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import pl.pmk.access.DbConnector;
+import pl.pmk.access.DbConnectorImpl;
 import pl.pmk.bussines.PostCode;
 import pl.pmk.bussines.PostCodeService;
 import static pl.pmk.Transaction.TransactionPredicate.*;
@@ -23,6 +26,13 @@ public class TransactionServiceImpl implements TransactionService{
 
 	private List<Transaction> listOfTransactions;
 	private PostCodeService postCodeService;
+	private Map<PcMonthYear,AvgNoTrans> PcMonthYearAverageData; 
+	private DbConnector dbConnector;
+
+	public TransactionServiceImpl() {
+		super();
+		dbConnector = new DbConnectorImpl();
+	}
 
 	public PostCodeService getPostCodeService() {
 		return postCodeService;
@@ -126,6 +136,34 @@ public class TransactionServiceImpl implements TransactionService{
 	@Override
 	public void emptyTransactionList() {
 		listOfTransactions = null;		
+	}
+
+	@Override
+	public void averageByPcYearMonth() {
+		System.out.println(listOfTransactions.size());
+		PcMonthYearAverageData = new HashMap<>();
+		
+		listOfTransactions.forEach(a->{
+			int idx = listOfTransactions.indexOf(a);
+			if (idx%10000==0){
+				System.out.println(idx);
+				uploadAvgByPcYearMonthToDb();
+				PcMonthYearAverageData = new HashMap<>();
+			}
+			PcMonthYear key = new PcMonthYear(a.getTransactionMonth(), a.getTransactionYear(), a.getPostcode());
+			if (PcMonthYearAverageData.containsKey(key)){
+				PcMonthYearAverageData.get(key).addTransaction(a.getPricePaid());
+			}else{
+				PcMonthYearAverageData.put(key, new AvgNoTrans(a.getPricePaid()));
+			}
+		});
+		
+	}
+
+	@Override
+	public void uploadAvgByPcYearMonthToDb() {
+		dbConnector.uploadAvgByPcYearMonthToDb(PcMonthYearAverageData);
+		
 	}
 
 }

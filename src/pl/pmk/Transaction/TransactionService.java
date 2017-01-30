@@ -23,4 +23,6 @@ public interface TransactionService {
 	public PostCodeService getPostCodeService();
 	public void setPostCodeService(PostCodeService postCodeService);
 	public void emptyTransactionList();
+	public void averageByPcYearMonth();
+	public void uploadAvgByPcYearMonthToDb();
 }

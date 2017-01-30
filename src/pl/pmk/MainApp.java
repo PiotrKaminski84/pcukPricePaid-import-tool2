@@ -21,21 +21,32 @@ public class MainApp {
 
 
 	public static void main(String[] args) throws IOException {
+		System.out.println(java.lang.Runtime.getRuntime().maxMemory());
+		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MMM/dd hh:mm:ss");
 		System.out.println(sdf.format(new Date(0)));
 		System.out.println("Starting -reading psotcodes" + sdf.format(new Date(System.currentTimeMillis())));
-
+/*
+	
 		PostCodeService postCodeService = new PostCodeServiceImpl();
 		String postCodePath = "C:\\Users\\elpmk\\Desktop\\data\\ukpostcodes\\ukpostcodes.csv";		
 		postCodeService.loadPostCodesFromFile(postCodePath);
-		//postCodeService.postCodesWithinRadious("LE11 5EX", 0.1).forEach(a->System.out.println(a));
-
+		System.out.println("End -reading psotcodes" + sdf.format(new Date(System.currentTimeMillis())));
+		postCodeService.postCodesWithinRadious("LE11 5EX", 300).forEach(a->System.out.println(a));
+		System.out.println("Cacl time" + sdf.format(new Date(System.currentTimeMillis())));
+	*/
 		TransactionService transactionService = new TransactionServiceImpl();
-		transactionService.setPostCodeService(postCodeService);
-		String path = "C:\\Users\\elpmk\\Desktop\\data\\pp";	
-		String savePath = "C:\\Users\\elpmk\\Desktop\\data\\generated\\";
-		File folder = new File(path);		
-		Arrays.asList(folder.listFiles()).forEach(f->{
+		transactionService.setPostCodeService(new PostCodeServiceImpl());
+		String path = "C:\\Users\\elpmk\\Desktop\\data\\pp\\pp-2016.txt";	
+		//String savePath = "C:\\Users\\elpmk\\Desktop\\data\\generated\\";
+		//File folder = new File(path);		
+		transactionService.readAllFromFile(path);
+		System.out.println("Data read");
+		transactionService.averageByPcYearMonth();
+		System.out.println("avg calculated");
+		//transactionService.uploadAvgByPcYearMonthToDb();
+		
+	/*	Arrays.asList(folder.listFiles()).forEach(f->{
 			transactionService.emptyTransactionList();
 			System.out.println(f.getAbsolutePath());
 			transactionService.readAllFromFile(f.getAbsolutePath());
@@ -57,6 +68,7 @@ public class MainApp {
 			System.out.println("saved as txt " + sdf.format(new Date(System.currentTimeMillis())));
 
 		});
+		*/
 		//System.out.println(transactionService.getAveragePriceWithinRadious("LE11 5EX", 2));
 
 		//transactionService.PrintList();

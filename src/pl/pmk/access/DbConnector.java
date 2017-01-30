@@ -3,6 +3,8 @@ package pl.pmk.access;
 import java.io.File;
 import java.util.Map;
 
+import pl.pmk.Transaction.AvgNoTrans;
+import pl.pmk.Transaction.PcMonthYear;
 import pl.pmk.bussines.PostCode;
 import pl.pmk.bussines.PropertyDetails;
 import pl.pmk.bussines.SaleTransaction;
@@ -15,6 +17,7 @@ public interface DbConnector {
 	public void startBatchQuerry();
 	public void addRecordToBatchStatment(SaleTransaction saleTranasaction, PropertyDetails propertyDetails);
 	public void endBatchQuerry();
+	public void uploadAvgByPcYearMonthToDb(Map<PcMonthYear, AvgNoTrans> pcMonthYearAverageData);
 	
 
 }
