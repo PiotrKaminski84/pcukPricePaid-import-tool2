@@ -1,4 +1,6 @@
-package pl.pmk.Transaction;
+package pl.pmk.transaction;
+
+import static pl.pmk.transaction.TransactionPredicate.*;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,29 +17,31 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import pl.pmk.access.AveragePriceByMYPDao;
+import pl.pmk.access.AveragePriceByMYPDaoImpl;
 import pl.pmk.access.DbConnector;
 import pl.pmk.access.DbConnectorImpl;
-import pl.pmk.bussines.PostCode;
 import pl.pmk.bussines.PostCodeService;
-import static pl.pmk.Transaction.TransactionPredicate.*;
 
 
 public class TransactionServiceImpl implements TransactionService{
 
 	private List<Transaction> listOfTransactions;
-	private PostCodeService postCodeService;
-	private Map<PcMonthYear,AvgNoTrans> PcMonthYearAverageData; 
-	private DbConnector dbConnector;
+	private PostCodeService postCodeService;	
+	private AveragePriceByMYPDao avgPriceByMYPDao;
+	
 
 	public TransactionServiceImpl() {
 		super();
-		dbConnector = new DbConnectorImpl();
+		avgPriceByMYPDao = new AveragePriceByMYPDaoImpl();
 	}
 
+	@Override
 	public PostCodeService getPostCodeService() {
 		return postCodeService;
 	}
 
+	@Override
 	public void setPostCodeService(PostCodeService postCodeService) {
 		this.postCodeService = postCodeService;
 	}
@@ -63,9 +67,11 @@ public class TransactionServiceImpl implements TransactionService{
 		return listOfTransactions;
 	}
 
+	@Override
 	public List<Transaction> getListOfTransactions() {
 		return listOfTransactions;
 	}
+	@Override
 	public void setListOfTransactions(List<Transaction> listOfTransactions) {
 		this.listOfTransactions = listOfTransactions;
 	}
@@ -116,22 +122,6 @@ public class TransactionServiceImpl implements TransactionService{
 		return transactions.stream().mapToInt(a->a.getPricePaid()).average().getAsDouble();		
 	}
 
-	@Override
-	public Map<MonthYear, Double> getAveragePriceMonthly(Date startDate, Date endDate, String postcode, double radious) {
-		//Date search not implemented
-		List<String> postCodes = postCodeService.postCodesWithinRadious(postcode, radious);
-		Stream<Transaction> transactions = filterTransactions(isOnPostCodeList(postCodes).and(dateAfter(startDate)).and(dateBefore(endDate)), listOfTransactions);		
-		return transactions.collect(Collectors.groupingBy(t->extractMonthYear(t.getDateOfTransfer()), Collectors.averagingDouble(t->t.getPricePaid())));
-	}
-
-	
-	private MonthYear extractMonthYear(Date date){
-		Calendar cal =Calendar.getInstance();
-		cal.setTime(date);
-		int month = cal.get(Calendar.MONTH);
-		int year = cal.get(Calendar.YEAR);
-		return new MonthYear(month,year);
-	}
 
 	@Override
 	public void emptyTransactionList() {
@@ -139,32 +129,18 @@ public class TransactionServiceImpl implements TransactionService{
 	}
 
 	@Override
-	public void averageByPcYearMonth() {
-		System.out.println(listOfTransactions.size());
-		PcMonthYearAverageData = new HashMap<>();
-		
+	public void uploadAvgByPcYearMonthToDb() {
 		listOfTransactions.forEach(a->{
-			int idx = listOfTransactions.indexOf(a);
-			if (idx%10000==0){
-				System.out.println(idx);
-				uploadAvgByPcYearMonthToDb();
-				PcMonthYearAverageData = new HashMap<>();
-			}
-			PcMonthYear key = new PcMonthYear(a.getTransactionMonth(), a.getTransactionYear(), a.getPostcode());
-			if (PcMonthYearAverageData.containsKey(key)){
-				PcMonthYearAverageData.get(key).addTransaction(a.getPricePaid());
-			}else{
-				PcMonthYearAverageData.put(key, new AvgNoTrans(a.getPricePaid()));
-			}
+			int year = a.getTransactionYear();
+			int month = a.getTransactionMonth();
+			double avgPrice = a.getPricePaid();
+			String postCode = a.getPostcode();
+			avgPriceByMYPDao.updateRecord(postCode, year, month, 1, avgPrice);
 		});
-		
+
 	}
 
-	@Override
-	public void uploadAvgByPcYearMonthToDb() {
-		dbConnector.uploadAvgByPcYearMonthToDb(PcMonthYearAverageData);
-		
-	}
+
 
 }
 

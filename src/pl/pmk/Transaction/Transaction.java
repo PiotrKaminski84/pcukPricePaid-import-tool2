@@ -1,9 +1,7 @@
-package pl.pmk.Transaction;
+package pl.pmk.transaction;
 
 import java.io.Serializable;
 import java.sql.Date;
-
-import pl.pmk.bussines.PropertyDetails;
 
 public class Transaction implements Serializable {
 	/**

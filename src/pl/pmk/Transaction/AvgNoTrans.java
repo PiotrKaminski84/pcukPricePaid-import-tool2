@@ -1,4 +1,4 @@
-package pl.pmk.Transaction;
+package pl.pmk.transaction;
 
 public class AvgNoTrans {
 	

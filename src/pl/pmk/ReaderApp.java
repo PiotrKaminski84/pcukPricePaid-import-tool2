@@ -8,7 +8,7 @@ import java.io.ObjectInputStream;
 import java.util.List;
 import java.util.OptionalDouble;
 
-import pl.pmk.Transaction.Transaction;
+import pl.pmk.transaction.Transaction;
 
 public class ReaderApp {
 	

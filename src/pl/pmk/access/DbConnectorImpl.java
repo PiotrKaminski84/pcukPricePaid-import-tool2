@@ -1,20 +1,10 @@
 package pl.pmk.access;
 
-import java.io.File;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Map;
 
-import com.mysql.jdbc.PreparedStatement;
-
-import java.sql.Connection;
-import java.sql.Statement;
-
-import pl.pmk.Transaction.AvgNoTrans;
-import pl.pmk.Transaction.PcMonthYear;
-import pl.pmk.bussines.PostCode;
-import pl.pmk.bussines.PropertyDetails;
-import pl.pmk.bussines.SaleTransaction;
+import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.Statement;
 
 public class DbConnectorImpl implements DbConnector {
 
@@ -29,17 +19,20 @@ db.password = javahaslo
 	
 	private static String userName = "java";
 	private static String password = "javahaslo";
-	private static int batchCounter;
-	private static int batchSize=1000;
 	private static String url = "jdbc:mysql://localhost:3306/pcdb";
-	Connection connection;
-	Statement statement;
+	public Connection connection;
+	public Statement statement;
+	
+	public DbConnectorImpl(){
+		ConnectDb();		
+	}
 	
 	
-	private void ConnectDb(){
+	public void ConnectDb(){
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 			connection = (Connection) DriverManager.getConnection(url, userName, password);
+			
 			System.out.println("DB connected");
 		} catch (SQLException e) {
 			System.out.println("Connection Failure");
@@ -56,7 +49,8 @@ db.password = javahaslo
 		
 	}
 	
-	private void Discconect(){
+	@Override
+	public void Disconnect(){
 		try {
 			connection.close();
 		} catch (SQLException e) {
@@ -65,112 +59,17 @@ db.password = javahaslo
 		}
 	}
 	
-	@Override
-	public void creatTablesForTransaction() {
 	
-		ConnectDb();
-		try {
-			statement  =  connection.createStatement();
-				statement.executeUpdate("create table if not exists `properetydetails` (	`id` int(14) not null Auto_increment,    `postcode` varchar(8),    `propertytype` int(1),    `paon` varchar(200),    `saon` varchar(200),    `street` varchar(50),    `locality` varchar(100),    `town` varchar(100),    `county` varchar(100),    primary key (`id`))");
-				statement.executeUpdate("create table if not exists `transactiondetails` ( 	`id` varchar(36) not null,     `pricepaid` varchar(10),     `transactiondate` date,     `new` varchar(1),     `tennure` varchar(1),         primary key (`id`))");
-				statement.close();
-			Discconect();
-		} catch (SQLException e) {
-			System.out.println("couldnt get connection");
-			e.printStackTrace();
-		}
-		
-	}
-	@Override
-	public void startBatchQuerry() {
-		ConnectDb();
-		batchCounter=0;
-	}
-	@Override
-	public void addRecordToBatchStatment(SaleTransaction saleTranasaction, PropertyDetails propertyDetails) {
-		
-		
-		if (batchCounter==1000)
-			try {
-				statement.executeBatch();
-			} catch (SQLException e) {
-				System.out.println("problem executing batch statment");
-				e.printStackTrace();
-			}
-		try {
-			statement.addBatch(generateInsertQuery(propertyDetails));
-			statement.addBatch(generateInsertQuery(saleTranasaction));
-		} catch (SQLException e) {
-			System.out.println("failed to addStatement");
-			e.printStackTrace();
-		}
-		
-		
-	}
-	
-	private String generateInsertQuery(SaleTransaction st){
-		
-		return null;
-		
-	}
-	
-	private String generateInsertQuery(PropertyDetails pd){
-		
-		return null;
-	}
-	
-	@Override
-	public void endBatchQuerry() {
-		
-		Discconect();
-		
-	}
 
 	@Override
-	public void insertSaleTransaction(SaleTransaction trans, PropertyDetails propertyDetails) {
-		// TODO Auto-generated method stub
-		
+	public com.mysql.jdbc.Connection getConnection() {		
+		return connection;
 	}
 
-	public static int getBatchSize() {
-		return batchSize;
-	}
 
-	public static void setBatchSize(int batchSize) {
-		DbConnectorImpl.batchSize = batchSize;
-	}
 
-	@Override
-	public void uploadAvgByPcYearMonthToDb(Map<PcMonthYear, AvgNoTrans> pcMonthYearAverageData) {
-		//
-		ConnectDb();
-		try {
-			statement = connection.createStatement();
-			for (Map.Entry<PcMonthYear, AvgNoTrans> a : pcMonthYearAverageData.entrySet()){
-				String pc = a.getKey().getPostCode();
-				int year = a.getKey().getYear();
-				int month = a.getKey().getMonth();
-				double avgPrice = a.getValue().getAveragePrice();
-				int noOfTransactions = a.getValue().getNumberOfTransactions();
-				String query = "select * from avg_price where post_code = '" + pc + "' and year = "+ year + " and month = "+ month;
-				statement.executeQuery(query);
-				if (statement.getResultSet().next()){
-					System.out.println("entry exists");					
-				}else {
-					query = "insert into avg_price (post_code,year,month,avg_price,no_of_transactions) values"
-							+ " ('"+pc+"',"+year+","+month+","+avgPrice+","+noOfTransactions+")";					
-					statement.execute(query);
-					//connection.commit();
-				}
-			}
 
-		} catch (SQLException e) {
-			System.out.println("Couldn't create statement !");
-			e.printStackTrace();
-		}
-		Discconect();
-		
-	}
+
 	
 	
 }

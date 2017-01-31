@@ -1,4 +1,4 @@
-package pl.pmk.Transaction;
+package pl.pmk.transaction;
 
 import java.sql.Date;
 import java.util.List;
@@ -18,11 +18,9 @@ public interface TransactionService {
 	public List<Transaction> getTransactions(Predicate<Transaction> p);
 	public List<Transaction> getTransactionsForPostCode(String postcode);
 	public Map<String,Double> getAveragePriceWithinRadiousByPostCode(String postcode, double radious);
-	public double getAveragePriceWithinRadious(String postcode, double radious);
-	public Map<MonthYear,Double> getAveragePriceMonthly(Date startDate, Date endDate, String postcode, double radious);
+	public double getAveragePriceWithinRadious(String postcode, double radious);	
 	public PostCodeService getPostCodeService();
 	public void setPostCodeService(PostCodeService postCodeService);
-	public void emptyTransactionList();
-	public void averageByPcYearMonth();
+	public void emptyTransactionList();	
 	public void uploadAvgByPcYearMonthToDb();
 }

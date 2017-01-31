@@ -1,21 +1,12 @@
 package pl.pmk;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Date;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import pl.pmk.Transaction.MonthYear;
-import pl.pmk.Transaction.TransactionService;
-import pl.pmk.Transaction.TransactionServiceImpl;
-import pl.pmk.bussines.PostCodeService;
 import pl.pmk.bussines.PostCodeServiceImpl;
+import pl.pmk.transaction.TransactionService;
+import pl.pmk.transaction.TransactionServiceImpl;
 
 public class MainApp {
 
@@ -42,9 +33,8 @@ public class MainApp {
 		//File folder = new File(path);		
 		transactionService.readAllFromFile(path);
 		System.out.println("Data read");
-		transactionService.averageByPcYearMonth();
-		System.out.println("avg calculated");
-		//transactionService.uploadAvgByPcYearMonthToDb();
+		transactionService.uploadAvgByPcYearMonthToDb();
+		System.out.println("avg calculated and uploaded");
 		
 	/*	Arrays.asList(folder.listFiles()).forEach(f->{
 			transactionService.emptyTransactionList();

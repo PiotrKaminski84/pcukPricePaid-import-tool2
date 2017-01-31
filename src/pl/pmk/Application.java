@@ -5,21 +5,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.pmk.Transaction.Transaction;
 import pl.pmk.bussines.PropertyDetails;
-import pl.pmk.bussines.SaleTransaction;
+import pl.pmk.transaction.Transaction;
 
 public class Application {
 	
