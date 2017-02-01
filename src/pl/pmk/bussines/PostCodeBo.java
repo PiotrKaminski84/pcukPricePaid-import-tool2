@@ -1,6 +1,6 @@
 package pl.pmk.bussines;
 
-public class PostCode {
+public class PostCodeBo {
 
 	private int id;
 	private String postCode;
@@ -8,7 +8,7 @@ public class PostCode {
 	private Double longitude;
 	private final static double EARTH_RADIUS = 3961; //<-miles ; use -  6373; for km
 	
-	public PostCode(String buffer) {
+	public PostCodeBo(String buffer) {
 		String[] split = buffer.split(",");
 		this.id = Integer.parseInt(split[0]);
 		this.postCode = split[1];

@@ -10,11 +10,11 @@ import java.util.stream.Collectors;
 
 public class PostCodeServiceImpl implements PostCodeService{
 
-	private List<PostCode> listOfPostCodes=new ArrayList<>();
+	private List<PostCodeBo> listOfPostCodes=new ArrayList<>();
 	
 	@Override
 	public List<String> postCodesWithinRadious(String postcode, double radious) {
-		PostCode pc = listOfPostCodes.stream().filter(a->a.getPostCode().equalsIgnoreCase(postcode)).findFirst().get();			
+		PostCodeBo pc = listOfPostCodes.stream().filter(a->a.getPostCode().equalsIgnoreCase(postcode)).findFirst().get();			
 		return listOfPostCodes.stream().filter(p->p.distanceFrom(pc.getLatitude(),pc.getLongitude())<radious).map(a->a.getPostCode()).collect(Collectors.toList());		
 	}
 
@@ -24,9 +24,9 @@ public class PostCodeServiceImpl implements PostCodeService{
 			BufferedReader br = new BufferedReader(new FileReader(new File(path)));
 			br.readLine();//skip header
 			String buffer = br.readLine();
-			PostCode postCode;
+			PostCodeBo postCode;
 			while(buffer!=null){
-				postCode = new PostCode(buffer);
+				postCode = new PostCodeBo(buffer);
 				listOfPostCodes.add(postCode);
 				buffer=br.readLine();
 			}
@@ -37,7 +37,7 @@ public class PostCodeServiceImpl implements PostCodeService{
 	}
 
 	@Override
-	public List<PostCode> getListOfPostCodes() {		
+	public List<PostCodeBo> getListOfPostCodes() {		
 		return listOfPostCodes;
 	}
 
